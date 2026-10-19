@@ -1,80 +1,80 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter,
   Routes,
   Route,
   Link,
-  useParams,
   useNavigate,
+  useParams,
 } from "react-router-dom";
+import axios from "axios";
 import "./App.css";
 
 const API = "http://localhost:5000/api";
 
-function Navbar() {
-  return (
-    <nav className="navbar">
-      <Link to="/" className="brand">LearnHub</Link>
-      <div className="nav-links">
-        <Link to="/">Home</Link>
-        <Link to="/courses">Courses</Link>
-        <Link to="/login">Login</Link>
-        <Link to="/register" className="nav-button">Register</Link>
-      </div>
-    </nav>
-  );
+function getToken() {
+  return localStorage.getItem("learnhubToken");
 }
 
 function Home() {
   return (
-    <section className="hero">
-      <p className="eyebrow">WELCOME TO LEARNHUB</p>
-      <h1>Learn New Skills.<br />Build Your Future.</h1>
-      <p className="hero-text">
-        Discover courses, learn from instructors, and take the next step
-        toward your goals.
-      </p>
-      <Link to="/courses" className="primary-button">Explore Courses</Link>
-    </section>
+    <main className="page">
+      <section className="hero">
+        <h1>Welcome to LearnHub</h1>
+        <p>Learn new skills. Build your future.</p>
+        <Link className="btn" to="/courses">Explore Courses</Link>
+      </section>
+      <h2>Why LearnHub?</h2>
+      <div className="course-grid">
+        <article className="course-card">
+          <h3>Expert Courses</h3>
+          <p>Explore courses designed to help you grow.</p>
+        </article>
+        <article className="course-card">
+          <h3>Learn Anywhere</h3>
+          <p>Access your learning journey online.</p>
+        </article>
+        <article className="course-card">
+          <h3>Track Progress</h3>
+          <p>Keep track of your enrolled courses.</p>
+        </article>
+      </div>
+    </main>
   );
 }
 
 function Courses() {
   const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios.get(`${API}/courses`)
-      .then((response) => setCourses(response.data))
-      .catch(() => setError("Courses could not load. Check your backend and database connection."))
+      .then((res) => {
+        const data = res.data;
+        setCourses(Array.isArray(data) ? data : data.courses || []);
+      })
+      .catch(() => setError("Courses load nahi huay. Backend check karo."))
       .finally(() => setLoading(false));
   }, []);
 
   return (
     <main className="page">
-      <h1>Explore Courses</h1>
-      <p className="muted">Find a course to start learning something new.</p>
-
+      <h1>Available Courses</h1>
       {loading && <p>Loading courses...</p>}
       {error && <p className="error">{error}</p>}
-
       {!loading && !error && courses.length === 0 && (
-        <p>No courses available yet. Please check back soon.</p>
+        <p>Abhi koi course available nahi hai.</p>
       )}
-
       <div className="course-grid">
         {courses.map((course) => (
           <article className="course-card" key={course._id}>
-            <div className="course-icon">📘</div>
             <p className="category">{course.category}</p>
             <h2>{course.title}</h2>
             <p>{course.description}</p>
-            <p className="price">
-              {Number(course.price) === 0 ? "Free" : `$${course.price}`}
-            </p>
-            <Link to={`/courses/${course._id}`} className="primary-button">
+            <p>Price: {course.price ?? "Free"}</p>
+            <Link className="btn" to={`/courses/${course._id}`}>
               View Details
             </Link>
           </article>
@@ -87,142 +87,216 @@ function Courses() {
 function CourseDetail() {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
-  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios.get(`${API}/courses/${id}`)
-      .then((response) => setCourse(response.data))
-      .catch(() => setError("Course not found or backend unavailable."));
+      .then((res) => setCourse(res.data.course || res.data))
+      .catch(() => setMessage("Course load nahi hua."))
+      .finally(() => setLoading(false));
   }, [id]);
 
-  if (error) return <main className="page"><p className="error">{error}</p><Link to="/courses">Back to Courses</Link></main>;
-  if (!course) return <main className="page"><p>Loading course...</p></main>;
+  const enroll = async () => {
+    const token = getToken();
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
+    try {
+      const res = await axios.post(
+        `${API}/enroll`,
+        { courseId: id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setMessage(res.data.message || "Enrollment successful!");
+    } catch (err) {
+      setMessage(err.response?.data?.message || "Enrollment nahi ho saki.");
+    }
+  };
+
+  if (loading) return <main className="page">Loading course...</main>;
 
   return (
-    <main className="page detail-card">
-      <p className="category">{course.category}</p>
-      <h1>{course.title}</h1>
-      <p>{course.description}</p>
-      <p><strong>Instructor:</strong> {course.instructor?.name || "LearnHub Instructor"}</p>
-      <p><strong>Price:</strong> {Number(course.price) === 0 ? "Free" : `$${course.price}`}</p>
-      <Link to="/register" className="primary-button">Register to Get Started</Link>
+    <main className="page">
+      {course ? (
+        <>
+          <h1>{course.title}</h1>
+          <p className="category">{course.category}</p>
+          <p>{course.description}</p>
+          <p>Price: {course.price ?? "Free"}</p>
+          <button className="btn" onClick={enroll}>Enroll Now</button>
+        </>
+      ) : <h1>Course not found</h1>}
+      {message && <p>{message}</p>}
     </main>
   );
 }
 
-function AuthForm({ isRegister }) {
+function Login() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "student",
-  });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleChange = (event) => {
-    setForm({ ...form, [event.target.name]: event.target.value });
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setMessage("");
-    setError("");
-    setLoading(true);
-
+  const submit = async (e) => {
+    e.preventDefault();
     try {
-      const endpoint = isRegister ? "/auth/register" : "/auth/login";
-      const response = await axios.post(`${API}${endpoint}`, form);
-
-      if (response.data.token) {
-        localStorage.setItem("learnhubToken", response.data.token);
-        localStorage.setItem("learnhubUser", JSON.stringify(response.data.user));
+      const res = await axios.post(`${API}/auth/login`, form);
+      const token = res.data.token || res.data.accessToken;
+      if (token) localStorage.setItem("learnhubToken", token);
+      if (res.data.user) {
+        localStorage.setItem("learnhubUser", JSON.stringify(res.data.user));
       }
-
-      setMessage(response.data.message || "Success!");
-
-      if (!isRegister) {
-        setTimeout(() => navigate("/courses"), 700);
-      }
+      setMessage("Login successful!");
+      navigate("/courses");
     } catch (err) {
-      setError(err.response?.data?.message || "Request failed. Check the backend and database.");
-    } finally {
-      setLoading(false);
+      setMessage(err.response?.data?.message || "Login failed. Details check karo.");
     }
   };
 
   return (
-    <main className="auth-wrapper">
-      <form className="auth-card" onSubmit={handleSubmit}>
-        <h1>{isRegister ? "Create Account" : "Welcome Back"}</h1>
-        <p className="muted">
-          {isRegister ? "Join the LearnHub learning community." : "Log in to your LearnHub account."}
-        </p>
-
-        {isRegister && (
-          <>
-            <label>Full Name</label>
-            <input name="name" value={form.name} onChange={handleChange} placeholder="Enter your name" required />
-          </>
-        )}
-
-        <label>Email Address</label>
-        <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="you@example.com" required />
-
-        <label>Password</label>
-        <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="At least 6 characters" minLength={6} required />
-
-        {isRegister && (
-          <>
-            <label>Account Type</label>
-            <select name="role" value={form.role} onChange={handleChange}>
-              <option value="student">Student</option>
-              <option value="instructor">Instructor</option>
-            </select>
-          </>
-        )}
-
-        {error && <p className="error">{error}</p>}
-        {message && <p className="success">{message}</p>}
-
-        <button className="primary-button full-button" type="submit" disabled={loading}>
-          {loading ? "Please wait..." : isRegister ? "Create Account" : "Login"}
-        </button>
-
-        <p className="auth-switch">
-          {isRegister ? "Already have an account? " : "New to LearnHub? "}
-          <Link to={isRegister ? "/login" : "/register"}>
-            {isRegister ? "Login" : "Register"}
-          </Link>
-        </p>
+    <main className="page auth-page">
+      <h1>Login</h1>
+      <form onSubmit={submit} className="auth-form">
+        <input type="email" placeholder="Email" required
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        <input type="password" placeholder="Password" required
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })} />
+        <button className="btn" type="submit">Login</button>
       </form>
+      {message && <p>{message}</p>}
+      <p>Don't have an account? <Link to="/register">Register</Link></p>
+    </main>
+  );
+}
+
+function Register() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    name: "", email: "", password: "", role: "student"
+  });
+  const [message, setMessage] = useState("");
+
+  const submit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API}/auth/register`, form);
+      setMessage("Registration successful! Please login.");
+      navigate("/login");
+    } catch (err) {
+      setMessage(err.response?.data?.message || "Registration failed.");
+    }
+  };
+
+  return (
+    <main className="page auth-page">
+      <h1>Create Account</h1>
+      <form onSubmit={submit} className="auth-form">
+        <input placeholder="Full Name" required value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })} />
+        <input type="email" placeholder="Email" required value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        <input type="password" placeholder="Password (minimum 6 characters)"
+          minLength="6" required value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })} />
+        <select value={form.role}
+          onChange={(e) => setForm({ ...form, role: e.target.value })}>
+          <option value="student">Student</option>
+          <option value="instructor">Instructor</option>
+        </select>
+        <button className="btn" type="submit">Register</button>
+      </form>
+      {message && <p>{message}</p>}
+      <p>Already registered? <Link to="/login">Login</Link></p>
+    </main>
+  );
+}
+
+function MyCourses() {
+  const navigate = useNavigate();
+  const [enrollments, setEnrollments] = useState([]);
+  const [message, setMessage] = useState("Loading your courses...");
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    axios.get(`${API}/my-courses`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then((res) => {
+        const data = res.data;
+        const list = Array.isArray(data) ? data : data.enrollments;
+        if (Array.isArray(list)) {
+          setEnrollments(list);
+          setMessage("");
+        } else {
+          setMessage("Backend ne courses ki list nahi bheji.");
+        }
+      })
+      .catch((err) => setMessage(
+        err.response?.data?.message || "Courses load nahi huay."
+      ));
+  }, [navigate]);
+
+  return (
+    <main className="page">
+      <h1>My Courses</h1>
+      {message && <p>{message}</p>}
+      {!message && enrollments.length === 0 && <p>Abhi enrolled courses nahi hain.</p>}
+      <div className="course-grid">
+        {enrollments.map((item) => (
+          <article className="course-card" key={item._id}>
+            <h2>{item.course?.title || item.title || "Course"}</h2>
+            <p>{item.course?.description || item.description}</p>
+            <p>Progress: {item.progress ?? 0}%</p>
+          </article>
+        ))}
+      </div>
     </main>
   );
 }
 
 function NotFound() {
+  return <main className="page"><h1>Page not found</h1><Link to="/">Go Home</Link></main>;
+}
+
+function Layout() {
   return (
-    <main className="page">
-      <h1>Page not found</h1>
-      <Link to="/" className="primary-button">Go Home</Link>
-    </main>
+    <>
+      <nav className="navbar">
+        <Link className="brand" to="/">LearnHub</Link>
+        <div className="nav-links">
+          <Link to="/">Home</Link>
+          <Link to="/courses">Courses</Link>
+          <Link to="/my-courses">My Courses</Link>
+          <Link to="/login">Login</Link>
+          <Link to="/register">Register</Link>
+        </div>
+      </nav>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/courses/:id" element={<CourseDetail />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/my-courses" element={<MyCourses />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <footer className="footer">© 2026 LearnHub LMS</footer>
+    </>
   );
 }
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/courses" element={<Courses />} />
-        <Route path="/courses/:id" element={<CourseDetail />} />
-        <Route path="/login" element={<AuthForm isRegister={false} />} />
-        <Route path="/register" element={<AuthForm isRegister={true} />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <Layout />
     </BrowserRouter>
   );
 }

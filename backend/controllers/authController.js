@@ -36,9 +36,7 @@ exports.register = async (req, res) => {
       name: name.trim(),
       email: email.trim().toLowerCase(),
       password: hashedPassword,
-      role: ["student", "instructor"].includes(role)
-        ? role
-        : "student",
+     role: "student",
     });
 
     res.status(201).json({

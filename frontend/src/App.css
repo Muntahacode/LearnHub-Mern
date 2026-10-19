@@ -1,3 +1,4 @@
+
 * {
   box-sizing: border-box;
 }
@@ -11,16 +12,21 @@ body {
 
 a {
   text-decoration: none;
+  color: #5145cd;
 }
 
+/* Navigation */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
   padding: 20px 7%;
-  background: white;
+  background: #fff;
   box-shadow: 0 2px 12px #17255410;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .brand {
@@ -33,83 +39,95 @@ a {
   display: flex;
   align-items: center;
   gap: 24px;
+  flex-wrap: wrap;
 }
 
 .nav-links a {
   color: #363950;
   font-weight: 600;
+  transition: color 0.2s;
 }
 
 .nav-links a:hover {
   color: #5145cd;
 }
 
-.nav-links .nav-button {
-  background: #5145cd;
-  color: white;
-  padding: 11px 18px;
-  border-radius: 8px;
-}
-
+/* Home Hero */
 .hero {
   text-align: center;
-  padding: 110px 20px;
-  background: linear-gradient(135deg, #f1efff, #ffffff, #e9f6ff);
-  min-height: 450px;
-}
-
-.eyebrow,
-.category {
-  color: #5145cd;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 13px;
+  padding: 100px 25px;
+  background: linear-gradient(135deg, #f1efff, #fff, #e9f6ff);
+  border-radius: 18px;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero h1 {
   font-size: clamp(36px, 5vw, 60px);
   line-height: 1.15;
   margin: 18px 0;
+  color: #20243a;
 }
 
-.hero-text {
+.hero p {
   max-width: 600px;
-  margin: 0 auto 30px;
   line-height: 1.8;
   color: #666b80;
+  margin: 0 auto 28px;
 }
 
+/* Buttons */
+.btn,
 .primary-button {
   display: inline-block;
   border: none;
   border-radius: 8px;
   background: #5145cd;
-  color: white;
+  color: #fff;
   padding: 13px 20px;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   text-align: center;
+  transition: background 0.2s, transform 0.2s;
 }
 
+.btn:hover,
 .primary-button:hover {
   background: #3f34ad;
+  color: #fff;
+  transform: translateY(-2px);
 }
 
+.btn:disabled,
 .primary-button:disabled {
   opacity: 0.7;
   cursor: wait;
 }
 
+/* Main Pages */
 .page {
   max-width: 1100px;
   margin: 0 auto;
   padding: 55px 24px;
+  min-height: 65vh;
 }
 
 .page h1 {
   font-size: 36px;
+  color: #20243a;
+  margin-top: 0;
+}
+
+.page h2 {
+  color: #20243a;
+}
+
+.page p {
+  line-height: 1.7;
 }
 
 .muted {
@@ -117,6 +135,19 @@ a {
   line-height: 1.7;
 }
 
+.category {
+  display: inline-block;
+  color: #5145cd;
+  background: #f1efff;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 20px;
+}
+
+/* Course Cards */
 .course-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -127,63 +158,79 @@ a {
 .course-card,
 .auth-card,
 .detail-card {
-  background: white;
+  background: #fff;
   border: 1px solid #ececf5;
   border-radius: 14px;
   padding: 25px;
   box-shadow: 0 8px 25px #17255408;
+  transition: transform 0.25s, box-shadow 0.25s;
+  overflow-wrap: anywhere;
 }
 
-.course-card h2 {
+.course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px #17255412;
+}
+
+.course-card h2,
+.course-card h3 {
   margin: 10px 0;
+  color: #20243a;
 }
 
 .course-card p {
   line-height: 1.7;
+  color: #666b80;
 }
 
 .course-icon {
   font-size: 35px;
+  margin-bottom: 12px;
 }
 
 .price {
   font-size: 20px;
   font-weight: 800;
+  color: #5145cd;
 }
 
-.auth-wrapper {
-  padding: 45px 20px;
+/* Login and Register Forms */
+.auth-page {
+  max-width: 500px;
+  min-height: 65vh;
 }
 
-.auth-card {
-  max-width: 440px;
-  margin: 0 auto;
+.auth-form {
+  display: grid;
+  gap: 16px;
+  margin-top: 25px;
+  background: #fff;
+  border: 1px solid #ececf5;
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 8px 25px #17255408;
 }
 
-.auth-card h1 {
-  margin-bottom: 8px;
-}
-
-.auth-card label {
-  display: block;
-  margin: 18px 0 8px;
-  font-weight: 600;
-}
-
-.auth-card input,
-.auth-card select {
+.auth-form input,
+.auth-form select {
   width: 100%;
   padding: 13px;
   border: 1px solid #d9dbea;
   border-radius: 8px;
   font-size: 15px;
-  background: white;
+  background: #fff;
+  color: #20243a;
 }
 
-.auth-card input:focus,
-.auth-card select:focus {
+.auth-form input:focus,
+.auth-form select:focus {
   outline: 2px solid #c5c0ff;
   border-color: #5145cd;
+}
+
+.auth-form .btn {
+  width: 100%;
+  margin-top: 5px;
 }
 
 .full-button {
@@ -201,23 +248,35 @@ a {
   font-weight: 700;
 }
 
+/* Messages */
 .error {
   color: #b42318;
   background: #fff0ef;
-  padding: 12px;
+  padding: 12px 15px;
   border-radius: 8px;
 }
 
 .success {
   color: #137547;
   background: #eaf8f0;
-  padding: 12px;
+  padding: 12px 15px;
   border-radius: 8px;
 }
 
+/* Footer */
+.footer {
+  background: #fff;
+  color: #777b8d;
+  text-align: center;
+  padding: 25px 15px;
+  border-top: 1px solid #ececf5;
+}
+
+/* Mobile Responsive */
 @media (max-width: 600px) {
   .navbar {
     flex-direction: column;
+    padding: 18px;
   }
 
   .nav-links {
@@ -227,6 +286,30 @@ a {
   }
 
   .hero {
-    padding: 75px 18px;
+    padding: 70px 18px;
+    min-height: 300px;
+  }
+
+  .page {
+    padding: 35px 18px;
+  }
+
+  .page h1 {
+    font-size: 29px;
+  }
+
+  .course-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .course-card,
+  .auth-card,
+  .detail-card {
+    padding: 20px;
+  }
+
+  .auth-form {
+    padding: 20px;
   }
 }

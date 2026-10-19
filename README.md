@@ -1,61 +1,55 @@
-# LearnHub – MERN Stack Learning Management System
+# LearnHub — MERN Stack Learning Management System
 
 ## Project Overview
-LearnHub is a Learning Management System built using the MERN stack. Users can browse courses, view course details, register for an account, and log in.
-
-## Features
-- Home page
-- Course listing
-- Course details
-- User registration
-- User login
-- Password hashing using bcrypt
-- JWT authentication
-- MongoDB database integration
-- REST API using Express.js
+LearnHub is a Learning Management System built with the MERN stack. It allows students to browse courses, view course details, register, log in, and enroll in courses.
 
 ## Technologies Used
-- MongoDB Atlas
+- MongoDB
 - Express.js
 - React.js
 - Node.js
-- Axios
 - React Router
-- bcryptjs
-- JSON Web Token (JWT)
+- Axios
+- CSS
 
 ## Project Structure
-- `frontend/` – React frontend application
-- `backend/` – Node.js and Express.js backend API
-- `README.md` – Project documentation
+- `frontend/` — React user interface
+- `backend/` — Express API and server-side code
 
 ## Installation and Setup
 
-### Backend Setup
-1. Open a terminal in the `backend` folder.
-2. Run `npm install`.
-3. Create a `.env` file using your own MongoDB connection string and JWT secret.
-4. Start the backend using `node server.js`.
+### 1. Clone the repository
+```bash
+git clone YOUR_REPOSITORY_URL
+cd LearnHub
+```
 
-### Frontend Setup
-1. Open another terminal in the `frontend` folder.
-2. Run `npm install`.
-3. Start the frontend using `npm start`.
-4. Open `http://localhost:3000` in your browser.
+### 2. Start the backend
+Open a terminal:
+```bash
+cd backend
+npm install
+```
+Configure the required environment variables in `.env`, including the MongoDB connection string and any authentication secret required by the project.
 
-## API Endpoints
-- `GET /api/courses` – Retrieve all courses.
-- `GET /api/courses/:id` – Retrieve a course by ID.
-- Authentication routes are available under `/api/auth`.
+Run the backend using the start script defined in `backend/package.json`.
 
-## Database
-MongoDB Atlas is used to store course and user information.
+### 3. Start the frontend
+Open another terminal:
+```bash
+cd frontend
+npm install
+npm start
+```
 
-## Testing Evidence
-Screenshots of the running application, registration/login, course pages, and API responses are included in the project report.
+Open `http://localhost:3000` in your browser. The backend runs on the port configured in its server settings.
 
-## Deployment
-Live deployment link: Not deployed yet.
+## Main Features
+- Home page
+- Course listing and course details
+- User registration and login
+- Course enrollment
+- My Courses page
 
 ## Author
-LearnHub MERN Stack Project
+Add your name here.
